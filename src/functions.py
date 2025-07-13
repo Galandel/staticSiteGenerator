@@ -69,3 +69,26 @@ def split_nodes_link(old_nodes):
         if node_text != "":
             new_nodes.append(TextNode(node_text, TextType.TEXT))
     return new_nodes
+
+# original code keeping for historical purposes
+# def text_to_textnodes(text):
+#     nodes_with_bold = split_nodes_delimiter([TextNode(text, TextType.TEXT)], "**", TextType.BOLD)
+#     nodes_with_bold_italics = split_nodes_delimiter(nodes_with_bold, "_", TextType.ITALIC)
+#     nodes_with_bold_italics_code = split_nodes_delimiter(nodes_with_bold_italics, "`", TextType.CODE)
+#     nodes_with_bold_italics_code_links = split_nodes_link(nodes_with_bold_italics_code)
+#     nodes_with_bold_italics_code_links_images = split_nodes_image(nodes_with_bold_italics_code_links)
+#     return nodes_with_bold_italics_code_links_images
+
+# chaining the text_to_textnodes function to declutter variable names
+def text_to_textnodes(text):
+    return split_nodes_image(
+        split_nodes_link(
+            split_nodes_delimiter(
+                split_nodes_delimiter(
+                    split_nodes_delimiter([TextNode(text, TextType.TEXT)], "**", TextType.BOLD),
+                    "_", TextType.ITALIC
+                ),
+                "`", TextType.CODE
+            )
+        )
+    )
