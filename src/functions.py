@@ -93,3 +93,12 @@ def text_to_textnodes(text):
         )
     )
 
+def extract_title(markdown):
+    h1 = ""
+    lines = markdown.split("\n")
+    for line in lines:
+        if line.startswith('#') and not line.startswith('##'):
+            h1 = line.lstrip("# ")
+    if not h1:
+        raise Exception("Missing h1 header")
+    return h1

@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType
-from functions import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_link, split_nodes_image, text_to_textnodes
+from functions import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_link, split_nodes_image, text_to_textnodes, extract_title
 
 class TestTextNode(unittest.TestCase):
     def test_split_nodes_delimiter_code(self):
@@ -180,7 +180,23 @@ class TestTextNode(unittest.TestCase):
             TextNode(" and a ", TextType.TEXT),
             TextNode("link", TextType.LINK, "https://boot.dev"),
         ]
-        self. assertListEqual(text_to_textnodes(text), expected_output)
+        self.assertListEqual(text_to_textnodes(text), expected_output)
+    
+    def test_extract_title_1(self):
+        markdown = '''
+# I am a header
+hello
+## not a header
+'''
+        self.assertEqual(extract_title(markdown), "I am a header")
+
+    def test_extract_title_error(self):
+        markdown = '''
+## not a title
+yep
+'''
+        with self.assertRaises(Exception):
+            extract_title(markdown)
     
 
 if __name__ == "__main__":
