@@ -1,6 +1,7 @@
 import shutil, os
 from markdown_blocks import markdown_to_html_node
 from functions import extract_title
+import sys
 
 def copy_files(src, dest):
     for item in os.listdir(src):
@@ -26,7 +27,7 @@ def copy_files(src, dest):
     #         os.mkdir(os.path.join(dest,item))
     #         copy_files(os.path.join(src,item), os.path.join(dest,item))
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     src = os.path.abspath(from_path)
     template = os.path.abspath(template_path)
     dest = os.path.abspath(dest_path)
@@ -37,27 +38,27 @@ def generate_page(from_path, template_path, dest_path):
         template_body = file.read()
     title = extract_title(markdown)
     content = markdown_to_html_node(markdown).to_html()
-    body = template_body.replace("{{ Title }}", title).replace("{{ Content }}", content)
+    body = template_body.replace("{{ Title }}", title).replace("{{ Content }}", content).replace("href=\"/", f'href="{basepath}').replace('src="/', f'src="{basepath}')
     with open(dest, "w") as file:
         file.write(body)
 
-def generate_pages_recursive(src, template, dest):
+def generate_pages_recursive(src, template, dest, basepath):
     for item in os.listdir(src):
         src_item = os.path.join(src, item)
         dest_item = os.path.join(dest, item)
-        print(f"DEBUG: source: {src_item}; destination: {dest_item}")
         if os.path.isfile(src_item):
             print(f"Generating file for: {src_item}")
             dest_html_item = dest_item.replace('.md','.html')
-            generate_page(src_item, template, dest_html_item)
+            generate_page(src_item, template, dest_html_item, basepath)
         else: 
             print(f"Building directory and recursively calling function: {dest_item}")
             os.mkdir(dest_item)
-            generate_pages_recursive(src_item, template, dest_item)
+            generate_pages_recursive(src_item, template, dest_item, basepath)
 
 if __name__ == "__main__":
+    basepath = sys.argv[1] if len(sys.argv) > 1 else '/'
     src = os.path.abspath('static')
-    dest = os.path.abspath('public')
+    dest = os.path.abspath('docs')
     if os.path.exists(dest):
         if os.path.isdir(dest):
             print(f"Deleting destination directory: {dest}")
@@ -68,7 +69,7 @@ if __name__ == "__main__":
     os.mkdir(dest)
     copy_files(src, dest)
     content_path = os.path.abspath('content')
-    generate_pages_recursive(content_path,'template.html', dest)
+    generate_pages_recursive(content_path,'template.html', dest, basepath)
 
 
 # Boots
